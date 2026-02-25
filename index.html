@@ -1,0 +1,254 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, Info, Volume2, CassetteTape, Wind, MapPin, Sparkles, ChevronRight } from 'lucide-react';
+
+const TAPE_COLLECTION = [
+  { id: 'fast', title: "For when everything feels too fast", description: "Soft piano and rolling synth pads to anchor your momentum.", color: "bg-slate-200" },
+  { id: 'space', title: "For the space between thoughts", description: "Minimalist textures that let your mind drift safely.", color: "bg-stone-200" },
+  { id: 'worries', title: "For 3am worries", description: "Deep, resonant drones to quiet the midnight echoes.", color: "bg-zinc-300" },
+  { id: 'commute', title: "For commutes that feel too short", description: "Washed-out field recordings of rain and distant bells.", color: "bg-gray-200" },
+  { id: 'rage', title: "For rage that needs softening", description: "Warm, distorted textures that absorb the edges of anger.", color: "bg-rose-100" },
+  { id: 'absence', title: "For the absence of someone", description: "A hollow but comforting resonance for quiet rooms.", color: "bg-blue-50" },
+  { id: 'patience', title: "For the long wait", description: "Slowly evolving loops that find beauty in stillness.", color: "bg-emerald-50" },
+  { id: 'beginnings', title: "For new mornings", description: "Bright, airy melodies that rise like the sun.", color: "bg-amber-50" },
+];
+
+const App = () => {
+  const [activeTape, setActiveTape] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.7);
+  const audioRef = useRef(null);
+
+  // Check URL for tape ID (from QR code)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tapeId = params.get('tape');
+    if (tapeId) {
+      const tape = TAPE_COLLECTION.find(t => t.id === tapeId);
+      if (tape) setActiveTape(tape);
+    }
+  }, []);
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f8f6f2] text-stone-800 font-sans selection:bg-stone-200 selection:text-stone-900">
+      {/* Background Texture */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
+
+      {/* Main Navigation/Header */}
+      <header className="p-8 md:p-12 max-w-5xl mx-auto flex justify-between items-start">
+        <div className="animate-in fade-in slide-in-from-top-4 duration-1000">
+          <h1 className="text-4xl md:text-5xl font-extralight tracking-tighter uppercase leading-none">
+            Pressing <br /> Pause <br /> Project
+          </h1>
+          <div className="h-px w-12 bg-stone-400 my-6"></div>
+          <p className="text-[10px] tracking-[0.4em] text-stone-500 uppercase font-medium">
+            Public Art • Ambient Sound • Analog Rescue
+          </p>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-8 pb-24">
+        
+        {/* If a tape is scanned via QR Code, show the Player prominently */}
+        {activeTape ? (
+          <section className="mb-20 animate-in zoom-in-95 duration-700">
+            <div className="bg-stone-900 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-8 md:p-16 flex flex-col md:flex-row items-center gap-12">
+                
+                {/* Visual Tape Component */}
+                <div className="relative group">
+                  <div className={`w-72 h-44 ${activeTape.color} rounded-lg border-2 border-stone-800 shadow-inner flex flex-col justify-between p-4 relative transition-transform duration-700 ${isPlaying ? 'rotate-1' : ''}`}>
+                    <div className="flex justify-between items-start">
+                      <div className="text-[8px] font-mono text-stone-500 uppercase tracking-widest">NR [ON]</div>
+                      <div className="text-[8px] font-mono text-stone-500 uppercase tracking-widest">SIDE A</div>
+                    </div>
+                    
+                    <div className="flex-1 flex flex-col justify-center items-center text-center px-4">
+                      <h2 className="text-xs font-bold font-mono uppercase tracking-tighter leading-tight">
+                        {activeTape.title}
+                      </h2>
+                    </div>
+
+                    <div className="flex justify-around items-end">
+                      <div className={`w-10 h-10 rounded-full border border-stone-400 border-dashed ${isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }}></div>
+                      <div className="w-16 h-2 bg-stone-800/10 rounded-full"></div>
+                      <div className={`w-10 h-10 rounded-full border border-stone-400 border-dashed ${isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }}></div>
+                    </div>
+                  </div>
+                  {isPlaying && <div className="absolute -inset-8 bg-white/5 blur-3xl rounded-full -z-10 animate-pulse"></div>}
+                </div>
+
+                {/* Player UI */}
+                <div className="flex-1 text-white">
+                  <span className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 block">Found in the wild</span>
+                  <h3 className="text-3xl font-light mb-4">{activeTape.title}</h3>
+                  <p className="text-stone-400 text-sm mb-8 italic">"{activeTape.description}"</p>
+                  
+                  <div className="flex items-center gap-6">
+                    <button 
+                      onClick={togglePlay}
+                      className="w-20 h-20 rounded-full bg-stone-100 text-stone-900 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all shadow-lg"
+                    >
+                      {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} className="ml-1" fill="currentColor" />}
+                    </button>
+                    
+                    <div className="flex flex-col gap-2 flex-1 max-w-[150px]">
+                      <div className="flex items-center gap-2">
+                        <Volume2 size={14} className="text-stone-500" />
+                        <input 
+                          type="range" min="0" max="1" step="0.01" value={volume}
+                          onChange={(e) => {
+                            setVolume(parseFloat(e.target.value));
+                            if(audioRef.current) audioRef.current.volume = parseFloat(e.target.value);
+                          }}
+                          className="w-full h-1 bg-stone-700 appearance-none rounded-full accent-stone-300"
+                        />
+                      </div>
+                      <p className="text-[9px] uppercase tracking-widest text-stone-500">Master Volume</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-stone-800/50 p-4 px-8 flex justify-between items-center text-[10px] text-stone-500 uppercase tracking-widest">
+                <span>Direct Digital Link Active</span>
+                <button onClick={() => setActiveTape(null)} className="hover:text-white transition-colors">Return to info</button>
+              </div>
+            </div>
+          </section>
+        ) : (
+          /* Main Landing View - Informational Only */
+          <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-start animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            
+            {/* The Mission Statement */}
+            <section className="space-y-8">
+              <div className="space-y-6">
+                <p className="text-xl md:text-2xl font-light leading-relaxed text-stone-700 italic">
+                  "These cassettes were rescued from thrift stores — someone's discarded soundtrack. 
+                  They've been given new purpose: to help you slow down."
+                </p>
+                <div className="h-px w-full bg-stone-200"></div>
+                <div className="space-y-4 text-stone-500 font-light leading-loose">
+                  <p>
+                    Choose one based on what you're feeling. Take it home. Listen on the tape or use the QR code found inside. 
+                    There is no cost, no obligation to return it.
+                  </p>
+                  <p>
+                    The cassette is yours. The music is for everyone. As the wall empties, it tells a story 
+                    about what we're all searching for.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-8">
+                <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400 mb-6 flex items-center gap-2">
+                  <MapPin size={12} /> The Current Location
+                </h3>
+                <div className="p-6 border border-stone-200 rounded-lg hover:border-stone-400 transition-colors group cursor-default">
+                  <p className="text-stone-800 font-medium mb-1">Corner of Main & 4th</p>
+                  <p className="text-stone-500 text-sm">Public Library Plaza, East Wall</p>
+                  <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-tighter text-stone-400 group-hover:text-stone-600 transition-colors">
+                    Find the cassette wall <ChevronRight size={14} />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* How to Participate */}
+            <section className="bg-stone-100 p-8 md:p-12 rounded-3xl space-y-12">
+              <div className="flex gap-6">
+                <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center shrink-0 font-mono text-sm">01</div>
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-widest mb-2">Find a Wall</h4>
+                  <p className="text-sm text-stone-500 leading-relaxed font-light">
+                    Locate a Pressing Pause installation in your city. Each wall contains dozens of rescued cassettes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-6">
+                <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center shrink-0 font-mono text-sm">02</div>
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-widest mb-2">Listen & Reflect</h4>
+                  <p className="text-sm text-stone-500 leading-relaxed font-light">
+                    Play the physical tape for the true analog experience, or scan the QR code on the J-card to access the digital loop.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-6">
+                <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center shrink-0 font-mono text-sm">03</div>
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-widest mb-2">Let it Go</h4>
+                  <p className="text-sm text-stone-500 leading-relaxed font-light">
+                    Keep the tape, give it to a friend, or leave it in a new place. The story continues with you.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 flex flex-col items-center justify-center text-center p-8 border-t border-stone-200/50">
+                <Sparkles className="text-stone-300 mb-4" size={24} />
+                <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 max-w-[200px] leading-loose">
+                  Scanning a QR code will unlock the music on this page.
+                </p>
+              </div>
+            </section>
+
+          </div>
+        )}
+      </main>
+
+      {/* Philosophy Section */}
+      {!activeTape && (
+        <section className="bg-stone-800 text-stone-100 py-24 px-8">
+          <div className="max-w-3xl mx-auto text-center space-y-8">
+            <CassetteTape size={40} className="mx-auto opacity-20" />
+            <h2 className="text-3xl font-light tracking-tight">Why Pause?</h2>
+            <p className="text-stone-400 leading-relaxed font-light text-lg">
+              We live in a world that values speed above all else. Pressing Pause is an act of quiet rebellion. 
+              By picking up a discarded object and listening to its new song, you are reclaiming a few minutes of your own time.
+            </p>
+            <div className="flex justify-center gap-12 pt-8">
+              <div className="text-center">
+                <div className="text-xl font-mono mb-1">428</div>
+                <div className="text-[10px] uppercase tracking-widest text-stone-500">Tapes Rescued</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-mono mb-1">12</div>
+                <div className="text-[10px] uppercase tracking-widest text-stone-500">Walls Active</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <footer className="p-12 text-center">
+        <div className="flex justify-center gap-8 text-[10px] uppercase tracking-[0.4em] text-stone-400 mb-8">
+          <a href="#" className="hover:text-stone-800 transition-colors">Instagram</a>
+          <a href="#" className="hover:text-stone-800 transition-colors">Locations</a>
+          <a href="#" className="hover:text-stone-800 transition-colors">Contact</a>
+        </div>
+        <p className="text-[10px] text-stone-400 uppercase tracking-[0.2em] font-light">
+          © 2026 Pressing Pause Project — Rescued. Repurposed. Released.
+        </p>
+      </footer>
+
+      {/* Audio Element */}
+      <audio 
+        ref={audioRef}
+        loop 
+      >
+        <source src="https://assets.mixkit.co/music/preview/mixkit-ambient-meditation-416.mp3" type="audio/mpeg" />
+      </audio>
+    </div>
+  );
+};
+
+export default App;
