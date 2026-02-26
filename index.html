@@ -11,19 +11,16 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        /* Custom styles to complement Tailwind */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
         }
 
-        /* Smooth scrolling */
         html {
             scroll-behavior: smooth;
         }
 
-        /* Range input styling for volume */
         input[type=range]::-webkit-slider-runnable-track {
             height: 4px;
             cursor: pointer;
@@ -37,15 +34,29 @@
             -webkit-appearance: none;
             margin-top: -4px;
         }
+
+        /* Subtle grain texture animation */
+        .grain::after {
+            content: "";
+            position: fixed;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background-image: url("https://www.transparenttextures.com/patterns/p6-grain.png");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 50;
+        }
     </style>
 </head>
-<body>
+<body class="grain">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Custom Icon components to replace lucide-react in a standalone environment
+        // Custom Icon components
         const Play = ({ size = 24, ...props }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
                 <polygon points="5 3 19 12 5 21 5 3" />
@@ -66,7 +77,7 @@
             </svg>
         );
 
-        const CassetteTape = ({ size = 24, ...props }) => (
+        const CassetteTapeIcon = ({ size = 24, ...props }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
                 <rect width="20" height="16" x="2" y="4" rx="2" />
                 <circle cx="8" cy="10" r="2" />
@@ -134,16 +145,16 @@
             };
 
             return (
-                <div className="min-h-screen bg-[#f8f6f2] text-stone-800 font-sans selection:bg-stone-200 selection:text-stone-900">
+                <div className="min-h-screen bg-[#f8f6f2] text-stone-800 font-sans selection:bg-stone-200 selection:text-stone-900 overflow-x-hidden">
                     <div className="fixed inset-0 pointer-events-none opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
 
-                    <header className="p-8 md:p-12 max-w-5xl mx-auto flex justify-between items-start">
-                        <div className="animate-in fade-in slide-in-from-top-4 duration-1000">
-                            <h1 className="text-4xl md:text-5xl font-extralight tracking-tighter uppercase leading-none">
-                                Pressing <br /> Pause <br /> Project
+                    <header className="p-8 md:p-12 lg:p-16 max-w-7xl mx-auto flex flex-col items-center">
+                        <div className="animate-in fade-in slide-in-from-top-4 duration-1000 flex flex-col items-center text-center w-full">
+                            <h1 className="text-xl md:text-2xl lg:text-3xl font-extralight tracking-[0.2em] md:tracking-[0.4em] uppercase leading-none whitespace-nowrap">
+                                Pressing Pause Project
                             </h1>
-                            <div className="h-px w-12 bg-stone-400 my-6"></div>
-                            <p className="text-[10px] tracking-[0.4em] text-stone-500 uppercase font-medium">
+                            <div className="h-px w-24 md:w-48 bg-stone-300 my-8"></div>
+                            <p className="text-[9px] md:text-[10px] tracking-[0.4em] text-stone-400 uppercase font-medium">
                                 Public Art • Ambient Sound • Analog Relaxation
                             </p>
                         </div>
@@ -152,7 +163,7 @@
                     <main className="max-w-5xl mx-auto px-8 pb-24">
                         {activeTape ? (
                             <section className="mb-20 animate-in zoom-in-95 duration-700">
-                                <div className="bg-stone-900 rounded-2xl overflow-hidden shadow-2xl">
+                                <div className="bg-stone-900 rounded-2xl overflow-hidden shadow-2xl border border-stone-800">
                                     <div className="p-8 md:p-16 flex flex-col md:flex-row items-center gap-12">
                                         <div className="relative group">
                                             <div className={`w-72 h-44 ${activeTape.color} rounded-lg border-2 border-stone-800 shadow-inner flex flex-col justify-between p-4 relative transition-transform duration-700 ${isPlaying ? 'rotate-1' : ''}`}>
@@ -184,7 +195,7 @@
                                             <div className="flex items-center gap-6">
                                                 <button 
                                                     onClick={togglePlay}
-                                                    className="w-20 h-20 rounded-full bg-stone-100 text-stone-900 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all shadow-lg"
+                                                    className="w-20 h-20 rounded-full bg-[#e67e3a] text-white flex items-center justify-center hover:bg-[#f08d4e] hover:scale-105 active:scale-95 transition-all shadow-lg"
                                                 >
                                                     {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} className="ml-1" fill="currentColor" />}
                                                 </button>
@@ -199,7 +210,7 @@
                                                                 setVolume(val);
                                                                 if(audioRef.current) audioRef.current.volume = val;
                                                             }}
-                                                            className="w-full h-1 bg-stone-700 appearance-none rounded-full"
+                                                            className="w-full h-1 bg-stone-700 appearance-none rounded-full accent-[#e67e3a]"
                                                         />
                                                     </div>
                                                     <p className="text-[9px] uppercase tracking-widest text-stone-500">Master Volume</p>
@@ -207,7 +218,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="bg-stone-800/50 p-4 px-8 flex justify-between items-center text-[10px] text-stone-500 uppercase tracking-widest">
+                                    <div className="bg-stone-800/50 p-4 px-8 flex justify-between items-center text-[10px] text-stone-500 uppercase tracking-widest border-t border-stone-800">
                                         <span>Direct Digital Link Active</span>
                                         <button onClick={() => { setActiveTape(null); setIsPlaying(false); audioRef.current.pause(); }} className="hover:text-white transition-colors">Return to info</button>
                                     </div>
@@ -218,8 +229,8 @@
                                 <section className="space-y-8">
                                     <div className="space-y-6">
                                         <p className="text-xl md:text-2xl font-light leading-relaxed text-stone-700 italic">
-                                            "Cassette tapes discovered in thrift stores - someone's discarded soundtrack -
-                                             are given new purpose: to help you slow down."
+                                            "These cassettes were rescued from thrift stores — someone's discarded soundtrack. 
+                                            They've been given new purpose: to help you slow down."
                                         </p>
                                         <div className="h-px w-full bg-stone-200"></div>
                                         <div className="space-y-4 text-stone-500 font-light leading-loose">
@@ -236,22 +247,21 @@
 
                                     <div className="pt-8">
                                         <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400 mb-6 flex items-center gap-2">
-                                            <MapPin size={12} /> The Current Location
+                                            <MapPin size={12} /> Coming Soon!
                                         </h3>
-                                        <div className="p-6 border border-stone-200 rounded-lg hover:border-stone-400 transition-colors group cursor-default">
-                                             
-                                            <p className="text-stone-800 font-medium mb-1">Coming soon!</p>
-                                            
-                                            <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-tighter text-stone-400 group-hover:text-stone-600 transition-colors">
-                                                Find the cassette wall <ChevronRight size={14} />
+                                        <div className="p-6 border border-stone-200 rounded-lg hover:border-[#e67e3a] hover:bg-white transition-all group cursor-default shadow-sm">
+                                            <p className="text-stone-800 font-medium mb-1">Our first installation is in progress.</p>
+                                            <p className="text-stone-500 text-sm italic">Follow us on social media for location updates.</p>
+                                            <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-tighter text-stone-400 group-hover:text-[#e67e3a] transition-colors">
+                                                Follow the journey <ChevronRight size={14} />
                                             </div>
                                         </div>
                                     </div>
                                 </section>
 
-                                <section className="bg-stone-100 p-8 md:p-12 rounded-3xl space-y-12">
+                                <section className="bg-stone-100 p-8 md:p-12 rounded-3xl space-y-12 border border-stone-200 shadow-inner">
                                     <div className="flex gap-6">
-                                        <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center shrink-0 font-mono text-sm">01</div>
+                                        <div className="w-10 h-10 rounded-full bg-white text-[#e67e3a] flex items-center justify-center shrink-0 font-mono text-sm shadow-sm border border-stone-200">01</div>
                                         <div>
                                             <h4 className="text-sm font-bold uppercase tracking-widest mb-2">Find a Wall</h4>
                                             <p className="text-sm text-stone-500 leading-relaxed font-light">
@@ -261,17 +271,17 @@
                                     </div>
 
                                     <div className="flex gap-6">
-                                        <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center shrink-0 font-mono text-sm">02</div>
+                                        <div className="w-10 h-10 rounded-full bg-white text-[#e67e3a] flex items-center justify-center shrink-0 font-mono text-sm shadow-sm border border-stone-200">02</div>
                                         <div>
                                             <h4 className="text-sm font-bold uppercase tracking-widest mb-2">Listen & Reflect</h4>
                                             <p className="text-sm text-stone-500 leading-relaxed font-light">
-                                                Play the physical tape for the true analog experience, or scan the QR code on the J-card to access the digital version.
+                                                Play the physical tape for the true analog experience, or scan the QR code on the J-card to access the digital loop.
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="flex gap-6">
-                                        <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center shrink-0 font-mono text-sm">03</div>
+                                        <div className="w-10 h-10 rounded-full bg-white text-[#e67e3a] flex items-center justify-center shrink-0 font-mono text-sm shadow-sm border border-stone-200">03</div>
                                         <div>
                                             <h4 className="text-sm font-bold uppercase tracking-widest mb-2">Let it Go</h4>
                                             <p className="text-sm text-stone-500 leading-relaxed font-light">
@@ -292,9 +302,9 @@
                     </main>
 
                     {!activeTape && (
-                        <section className="bg-stone-800 text-stone-100 py-24 px-8">
+                        <section className="bg-stone-800 text-stone-100 py-24 px-8 border-t border-stone-700">
                             <div className="max-w-3xl mx-auto text-center space-y-8">
-                                <CassetteTape size={40} className="mx-auto opacity-20" />
+                                <CassetteTapeIcon size={40} className="mx-auto opacity-20" />
                                 <h2 className="text-3xl font-light tracking-tight">Why Pause?</h2>
                                 <p className="text-stone-400 leading-relaxed font-light text-lg">
                                     We live in a world that values speed above all else. Pressing Pause is an act of quiet rebellion. 
@@ -302,11 +312,11 @@
                                 </p>
                                 <div className="flex justify-center gap-12 pt-8">
                                     <div className="text-center">
-                                        <div className="text-xl font-mono mb-1">0</div>
+                                        <div className="text-xl font-mono mb-1 text-[#e67e3a]">0</div>
                                         <div className="text-[10px] uppercase tracking-widest text-stone-500">Tapes Rescued</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-xl font-mono mb-1">0</div>
+                                        <div className="text-xl font-mono mb-1 text-[#e67e3a]">0</div>
                                         <div className="text-[10px] uppercase tracking-widest text-stone-500">Walls Active</div>
                                     </div>
                                 </div>
@@ -316,14 +326,18 @@
 
                     <footer className="p-12 text-center">
                         <div className="flex justify-center gap-8 text-[10px] uppercase tracking-[0.4em] text-stone-400 mb-8">
-                            <a href="https://www.instagram.com/blueamongthetrees/" className="hover:text-stone-800 transition-colors">Instagram</a>
+                            <a href="#" className="hover:text-stone-800 transition-colors">Instagram</a>
                             <a href="#" className="hover:text-stone-800 transition-colors">Locations</a>
-                            <a href="https://blueamongthetrees.xyz/" className="hover:text-stone-800 transition-colors">Contact</a>
+                            <a href="#" className="hover:text-stone-800 transition-colors">Contact</a>
                         </div>
                         <p className="text-[10px] text-stone-400 uppercase tracking-[0.2em] font-light">
-                            © 2026 Pressing Pause Project by <a href="https://blueamongthetrees.xyz">BlueAmongTheTrees</a>
+                            © 2026 Pressing Pause Project — Rescued. Repurposed. Released.
                         </p>
                     </footer>
+
+                    <audio ref={audioRef} loop>
+                        <source src="https://assets.mixkit.co/music/preview/mixkit-ambient-meditation-416.mp3" type="audio/mpeg" />
+                    </audio>
                 </div>
             );
         };
@@ -332,7 +346,4 @@
         root.render(<App />);
     </script>
 </body>
-    <!--
-                                            <p className="text-stone-800 font-medium mb-1">Corner of Main & 4th</p>
-                                            <p className="text-stone-500 text-sm">Public Library Plaza, East Wall</p> -->
 </html>
